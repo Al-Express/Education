@@ -1,0 +1,27 @@
+{
+    "workbench.colorTheme": "Default Light+",
+    "workbench.startupEditor": "none",
+    "files.autoSave": "afterDelay",
+    "editor.minimap.enabled": false,
+    "code-runner.runInTerminal": true,
+    "git.confirmSync": false,
+    "cpplint.cpplintPath": "c:\\Users\\zavad\\AppData\\Local\\Programs\\Python\\Python310\\Scripts\\cpplint.exe",
+    "cpplint.lineLength": 110,
+    "cpplint.filters": [
+        "-runtime/int",
+        "-whitespace/indent",
+        "-legal/copyright",
+        "-build/include_subdir",
+        "-build/include",
+        "-readability/casting",
+        "-runtime/threadsafe_fn",
+        "-runtime/printf"
+    ],
+    "cpplint.headers": [
+//        "h++",
+//        "cuh",
+//        "hxx",
+//        "hpp",
+        "h"
+    ]
+}
