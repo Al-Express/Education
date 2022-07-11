@@ -1,7 +1,7 @@
 // "Copyright 2022 leonarda"
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <ncurses.h>
 
 #define Length 80
@@ -13,7 +13,7 @@ int get_menu(int quantity_main);
 
 void world_create(int ***world);
 void random_world(int **world);
-void custom_world(int **world);
+int custom_world(int **world);
 void empty_world(int **world);
 void print_world(int **world);
 void copy_world(int **world, int **next_world);
@@ -24,16 +24,12 @@ void check_isolation(int **world, int **next_world);
 void check_overpopulation(int **world, int **next_world);
 void check_still_alive(int **world, int **next_world);
 
-
-
-
-
 int main() {
+    int err = 0;
     int choice = 0, quantity = 2;
     int time = 10;
     int key = 49;
     int **main_world, **temp;
-
 
     world_create(&temp);
     world_create(&main_world);
@@ -43,7 +39,7 @@ int main() {
     if (choice != 0) {
         switch (choice) {
                 case 1:
-                    custom_world(main_world);
+                    err = custom_world(main_world);
                     break;
                 case 2:
                     random_world(main_world);
@@ -51,6 +47,10 @@ int main() {
                 default:
                     break;
         }
+    } else {
+        err = 1;
+    }
+    if (err == 0) {
         initscr();
         clear();
         noecho();
@@ -60,7 +60,6 @@ int main() {
             refresh();
             halfdelay(time);
             key = getch();
-            usleep(time);
             empty_world(temp);
             check_new_birth(main_world, temp);
             check_isolation(main_world, temp);
@@ -74,7 +73,6 @@ int main() {
             if (key == 32) {
                 do {
                     key = getch();
-                    // usleep(time);
                 } while (key != 32);
             }
             if (key == 113 || key == 27) {
@@ -86,23 +84,12 @@ int main() {
         clear();
         refresh();
         endwin();
-        free(main_world);
-        free(temp);
     } else {
         printf("n/a\n");
     }
+    free(main_world);
+    free(temp);
     return 0;
-}
-
-void random_world(int **world) {
-    for (int i = 0; i < Height; i++) {
-        for (int j = 0; j < Length; j++) {
-            int r = rand()%11;
-            if (r > 5) {
-                world[i][j] = 1;
-            }
-        }
-    }
 }
 
 void empty_world(int **world) {
@@ -126,29 +113,48 @@ void world_create(int ***world) {
     }
 }
 
-void custom_world(int **world) {
+void random_world(int **world) {
+    for (int i = 0; i < Height; i++) {
+        for (int j = 0; j < Length; j++) {
+            int r = rand()%11;
+            if (r > 5) {
+                world[i][j] = 1;
+            }
+        }
+    }
+}
+
+int custom_world(int **world) {
+    int err = 0;
     char tmp;
-    char filename[249];
+    char filename[250];
     printf("Enter name of text file > ");
     scanf("%s", filename);
     FILE *fpointer;
-    if ((fpointer = fopen(filename, "r")) == NULL) {
-        printf("File does not exist");
-    } else {
-        for (int i = 3; i < Height; i++) {
-        for (int j = 3; j < Length; j++) {
-            fread(&tmp, sizeof(char), 1, fpointer);
-            if (tmp == '\0' || tmp == '\n') {
-                break;
-            } else {
-                if (tmp == '1') {
-                    world[i][j] = 1;
+    fpointer = fopen(filename, "r");
+    if (fpointer) {
+        for (int i = 5; i < Height; i++) {
+            for (int j = 25; j < Length; j++) {
+                fread(&tmp, sizeof(char), 1, fpointer);
+                if (feof(fpointer)) {
+                    i = Height;
+                    j = Length;
+                    break;
+                }
+                if (tmp == '\0' || tmp == '\n') {
+                    break;
+                } else {
+                    if (tmp == '1') {
+                        world[i][j] = 1;
+                    }
                 }
             }
         }
-        }
+        fclose(fpointer);
+    } else {
+        err = 1;
     }
-    fclose(fpointer);
+    return err;
 }
 
 int neighbor_count(int **world, int i, int j) {
